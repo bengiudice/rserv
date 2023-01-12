@@ -1,4 +1,3 @@
-//TODO: handle unwraps.
 use rserv::ThreadPool;
 use std::{
     fs,
@@ -22,7 +21,6 @@ fn handle_connection(mut stream: TcpStream) {
         .next()
         .unwrap_or(Result::Ok("".into()))
         .unwrap();
-    //dbg!(&request_line);
     let (status_line, filename) = match request_line.as_str() {
         "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"),
         "GET /sleep HTTP/1.1" => {
