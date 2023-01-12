@@ -1,2 +1,2 @@
 # rserv
-Web server written in rust. 
+Multithreaded Web server written in rust. 
