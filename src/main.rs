@@ -17,8 +17,12 @@ fn main() {
 }
 fn handle_connection(mut stream: TcpStream) {
     let buf_reader = BufReader::new(&mut stream);
-    let request_line = buf_reader.lines().next().unwrap().unwrap();
-    dbg!(&request_line);
+    let request_line = buf_reader
+        .lines()
+        .next()
+        .unwrap_or(Result::Ok("".into()))
+        .unwrap();
+    //dbg!(&request_line);
     let (status_line, filename) = match request_line.as_str() {
         "GET / HTTP/1.1" => ("HTTP/1.1 200 OK", "hello.html"),
         "GET /sleep HTTP/1.1" => {
