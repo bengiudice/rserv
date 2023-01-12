@@ -8,7 +8,7 @@ pub struct ThreadPool {
 }
 struct Worker {
     id: usize,
-    thread: thread::JoinHandle<()>,
+    thread: Option<thread::JoinHandle<()>>,
 }
 type Job = Box<dyn FnOnce() + Send + 'static>;
 impl ThreadPool {
@@ -34,6 +34,16 @@ impl ThreadPool {
         self.sender.send(job).unwrap();
     }
 }
+impl Drop for ThreadPool {
+    fn drop(&mut self) {
+        for worker in  &mut self.workers {
+            println!("Shutting down worker {}", worker.id);
+            if let Some(thread) = worker.thread.take() {
+                thread.join().unwrap();
+            }
+        }
+    }
+}
 impl Worker {
     fn new(id: usize, receiver: Arc<Mutex<mpsc::Receiver<Job>>>) -> Worker {
         // TODO: Refactor to use std::thread::Builder & spawn.
@@ -42,6 +52,6 @@ impl Worker {
             println!("Worker {id} got a job; executing.");
             job();
         });
-        Worker { id, thread }
+        Worker { id, thread: Some(thread), }
     }
 }
